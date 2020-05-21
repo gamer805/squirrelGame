@@ -1,0 +1,326 @@
+<!doctype html>
+<html>
+	<head>
+		<title> Test </title>
+		<style type="text/css">
+			@font-face {
+	        font-family: "dogChronicles";
+	        src: url("dogChroniclesFon.ttf");
+	        }
+
+	        html {
+	        font-family: 'dogChronicles', Arial, sans-serif;
+	        -webkit-user-select: none;
+	        -webkit-touch-callout: none;
+	        overflow: hidden;
+	        color: white;
+	        }
+		</style>
+	</head>
+	<script src="simply.js"></script>
+	<script>
+		function start() {
+			sjs.open('target', window.innerWidth, window.innerHeight)
+			var backgroundLayer1 = new sjs.Image('blank.png')
+			backgroundLayer1.node.style.backgroundImage = "url('lvl1Mts.png')"
+			backgroundLayer1.node.style.backgroundColor = "skyblue"
+			backgroundLayer1.noBounds = true
+			backgroundLayer1.moveTo(0, window.innerHeight - 720)
+			backgroundLayer1.setSize(1280*12,720);
+			var backgroundLayer2 = new sjs.Image('blank.png')
+			backgroundLayer2.node.style.backgroundImage = "url('lvl1Trees2.png')"
+			backgroundLayer2.noBounds = true
+			backgroundLayer2.moveTo(0, window.innerHeight - 720)
+			backgroundLayer2.setSize(1280*12,720);
+			var backgroundLayer3 = new sjs.Image('blank.png')
+			backgroundLayer3.node.style.backgroundImage = "url('lvl1Trees1.png')"
+			backgroundLayer3.noBounds = true
+			backgroundLayer3.moveTo(0, window.innerHeight - 720)
+			backgroundLayer3.setSize(1280*12,720);
+			var acornCount = 0
+			var seed =134786;
+			var x = Math.sin(seed++) * 10000;
+			var random = x - Math.floor(x);
+			console.log(random);
+			document.addEventListener("touchstart", function(e) {
+				e.keyCode = 32
+			});
+			document.addEventListener("touchend", function(e) {
+				e.keyCode = 32
+			});
+			var groundArray = []
+			var ground = new sjs.Image('blank.png')
+			ground.node.style.backgroundImage = "url('ground.png')"
+			ground.noBounds = true
+			ground.moveTo(0, window.innerHeight - 39)
+			ground.setSize(1280*12,39);
+			ground.node.style.zIndex = 1
+			ground.type = "ground"
+			groundArray.push(ground)
+			var assetArray = []
+			var startFlag = new sjs.Image('blank.png')
+			startFlag.setSize(1, 720)
+			startFlag.moveTo(0, window.innerHeight - 39)
+			startFlag.type = 'startFlag'
+
+			assetArray.push(startFlag)
+
+			lvlArray = []
+			var pit = new sjs.Image('pit.png')
+			pit.noBounds = true
+			pit.setSize(7*39, 42)
+			pit.moveTo(2000, window.innerHeight - 42)
+			pit.type = 'pit'
+			pit.node.style.zIndex = 2
+
+			var slope = new sjs.Image('slopeRight.png')
+			slope.noBounds= true
+			slope.setSize(117, 156)
+			slope.moveTo(500, 9)
+			slope.type = 'slopeRight'
+			slope.node.style.zIndex = 2
+			slope.onClick(function(){
+				var slope = new sjs.Image('slopeRight.png')
+				slope.noBounds= true
+				slope.setSize(117, 156)
+				slope.moveTo(window.innerWidth/2, window.innerHeight - 156)
+				slope.type = 'slopeRight'
+				slope.node.style.zIndex = 2
+				slope.node.ondblclick = function(){
+					if(slope.type == 'slopeRight'){
+						slope.type = 'slopeLeft'
+						slope.node.style.transform = "scaleX(-1)"
+					} else {
+						slope.type = 'slopeRight'
+						slope.node.style.transform = "scaleX(1)"
+					}
+					
+				}
+				slope.onMouseDown(function(){
+					slope.followx(sjs.mouse)
+				})
+				window.onmouseup = function(){
+					slope.unfollowx(sjs.mouse)
+				}
+				assetArray.push(slope)
+				lvlArray.push([slope.type, slope.getX(), slope.getY()])
+			})
+
+
+			var spiker = new sjs.Image('spikerRiseLeft.gif')
+			spiker.setSize(60, 63)
+			spiker.noBounds = true
+			spiker.moveTo(9, 9)
+			spiker.onClick(function(){
+				var spiker = new sjs.Image('spikerRiseLeft.gif')
+				spiker.setSize(60, 63)
+				spiker.noBounds = true
+				spiker.moveTo(window.innerWidth/2, window.innerHeight - 39 - 63)
+				spiker.type = 'spikerLeft'
+				spiker.node.style.zIndex = 2
+				spiker.node.ondblclick = function(){
+					if(slope.type == 'spikerRight'){
+						slope.type = 'spikerLeft'
+						slope.node.style.transform = "scaleX(-1)"
+					} else {
+						slope.type = 'spikerRight'
+						slope.node.style.transform = "scaleX(1)"
+					}
+					
+				}
+				spiker.onMouseDown(function(){
+					spiker.followx(sjs.mouse)
+				})
+				window.onmouseup = function(){
+					spiker.unfollowx(sjs.mouse)
+				}
+				assetArray.push(spiker)
+				lvlArray.push([spiker.type, spiker.getX(), spiker.getY()])
+			})
+			var gnome = new sjs.Image('gnomeWalkLeft.gif')
+			gnome.setSize(72, 132)
+			gnome.noBounds = true
+			gnome.moveTo(72, 9)
+			gnome.onClick(function(){
+				var gnome = new sjs.Image('gnomeWalkLeft.gif')
+				gnome.setSize(72, 132)
+				gnome.noBounds = true
+				gnome.moveTo(window.innerWidth/2, window.innerHeight - 39 - 132)
+				gnome.type = 'gnomeLeft'
+				gnome.node.style.zIndex = 2
+				gnome.node.ondblclick = function(){
+					if(gnome.type == 'gnomeRight'){
+						gnome.type = 'gnomeLeft'
+						gnome.node.style.transform = "scaleX(-1)"
+					} else {
+						gnome.type = 'gnomeRight'
+						gnome.node.style.transform = "scaleX(1)"
+					}
+					
+				}
+				gnome.onMouseDown(function(){
+					gnome.followx(sjs.mouse)
+				})
+				window.onmouseup = function(){
+					gnome.unfollowx(sjs.mouse)
+				}
+				assetArray.push(gnome)
+				lvlArray.push([gnome.type, gnome.getX(), gnome.getY()])
+			})
+			var platform = new sjs.Image('platform.png')
+			platform.setSize(174, 54)
+			platform.noBounds = true;
+			platform.moveTo(144, 9)
+			platform.onClick(function(){
+				var platform = new sjs.Image('platform.png')
+				platform.setSize(174, 54)
+				platform.noBounds = true
+				platform.moveTo(window.innerWidth/2, window.innerHeight/2)
+				platform.type = 'platform'
+				platform.draggable()
+				platform.node.style.zIndex = 2
+				assetArray.push(platform)
+				lvlArray.push([platform.type, platform.getX(), platform.getY()])
+			})
+			var acorn = new sjs.Image('acorn.png')
+			acorn.noBounds = true
+			acorn.setSize(51, 45)
+			acorn.moveTo(318, 9)
+			acorn.onClick(function(){
+				var acorn = new sjs.Image('acorn.png')
+				acorn.noBounds = true
+				acorn.setSize(51, 45)
+				acorn.moveTo(window.innerWidth/2, window.innerHeight/2)
+				acorn.type = 'acorn'
+				acorn.draggable()
+				acorn.node.style.zIndex = 2
+				assetArray.push(acorn)
+				lvlArray.push([acorn.type, acorn.getX(), acorn.getY()])
+			})
+			var snake = new sjs.Image('snakeSlitherLeft.gif')
+			snake.setSize(96, 78)
+			snake.noBounds = true
+			snake.moveTo(369, 9)
+			snake.onClick(function(){
+				var snake = new sjs.Image('snakeSlitherLeft.gif')
+				snake.setSize(96, 78)
+				snake.noBounds = true
+				snake.moveTo(window.innerWidth/2, window.innerHeight - 39 - 78)
+				snake.type = 'snakeLeft'
+				snake.node.ondblclick = function(){
+					if(snake.type == 'snakeRight'){
+						snake.type = 'snakeLeft'
+						snake.node.style.transform = "scaleX(-1)"
+					} else {
+						snake.type = 'snakeRight'
+						snake.node.style.transform = "scaleX(1)"
+					}
+					
+				}
+				snake.onMouseDown(function(){
+					snake.followx(sjs.mouse)
+				})
+				window.onmouseup = function(){
+					snake.unfollowx(sjs.mouse)
+				}
+				assetArray.push(snake)
+				lvlArray.push([snake.type, snake.getX(), snake.getY()])
+				console.log(lvlArray)
+			})
+
+
+		    var scrollable = true
+
+		    sjs.keyDown(D_KEY, function(){
+		    	facingRight = true
+		    	if(scrollable)scrollRight = true
+		    })
+		    sjs.keyDown(A_KEY, function(){
+		    	if(levelY > 0) {
+		    		if(scrollable)scrollLeft = true
+
+		    	}
+		    })
+		    setInterval(function(){
+		    	if(!scrollable)scrollRight = false
+		    	if(!scrollable)scrollLeft = false
+		    },1)
+		    window.addEventListener('keyup', function(e){
+		    	if (e.keyCode == D_KEY) {
+		    		scrollRight = false
+		    	} else if (e.keyCode == A_KEY) {
+		    		scrollLeft = false
+		    	}
+		    	
+		    })
+			
+			var obstacleArray = []
+			var loopNumber = 0
+			var scrollRight = false;
+			var scrollLeft = false;
+			var leftScreenHit = true;
+			var treeDistances = Math.floor(Math.random()*40) + 20
+			var levelY = 0
+			
+			setInterval(function(){
+				window.onmouseup = function(){
+						for (var i = 0; i < assetArray.length; i++) {
+							assetArray[i].unfollowx(sjs.mouse)
+						}
+					}
+				if (levelY <= 0 || startFlag.getX() >= 0) scrollLeft = false
+				if (scrollRight) {
+					levelY++
+					backgroundLayer1.moveTo((backgroundLayer1.getX() - 1), window.innerHeight - 720)
+					backgroundLayer2.moveTo((backgroundLayer2.getX() - 1.5), window.innerHeight - 720)
+					backgroundLayer3.moveTo((backgroundLayer3.getX() - 2), window.innerHeight - 720)
+					for (var i = 0; i < groundArray.length; i++) {
+						groundArray[i].moveTo((groundArray[i].getX() - 5), window.innerHeight - 40)
+					}
+					for (var i = 0; i < assetArray.length; i++) {
+						assetArray[i].noBounds = true
+						assetArray[i].moveTo(assetArray[i].getX() - 5, assetArray[i].getY())
+
+					}
+					
+				} else if (scrollLeft){
+					levelY--
+					backgroundLayer1.moveTo((backgroundLayer1.getX() + 1), window.innerHeight - 720)
+					backgroundLayer2.moveTo((backgroundLayer2.getX() + 1.5), window.innerHeight - 720)
+					backgroundLayer3.moveTo((backgroundLayer3.getX() + 2), window.innerHeight - 720)
+					for (var i = 0; i < groundArray.length; i++) {
+						groundArray[i].moveTo((groundArray[i].getX() + 5), window.innerHeight - 40)
+					}
+					
+					for (var i = 0; i < assetArray.length; i++) {
+						assetArray[i].noBounds = true
+						assetArray[i].moveTo(assetArray[i].getX() + 5, assetArray[i].getY())
+
+					}
+				}
+				
+
+			},17)
+			sjs.keyDown(E_KEY, function(){
+							lvlArray = []
+							for (var i = 0; i < assetArray.length; i++) {
+								lvlArray.push([assetArray[i].type, assetArray[i].getX(), assetArray[i].getY()])
+								
+							}
+							console.log(lvlArray)
+							var email = 'fancydoggames@gmail.com';
+							var subject = 'Level Info';
+							var emailBody = lvlArray
+							var mailto_link = 'mailto:' + email + '?subject=' + subject + '&body=' + encodeURIComponent(emailBody);
+							win = window.open(mailto_link, 'emailWin');
+						})
+		}
+	</script>
+	<body onload="start()">
+		<div id="target" style="top: -5px; left: -7px; background: white;  overflow: hidden;">
+			<!--<p id="Simply Coding Reference" style="position: absolute; top: 12px; right: 12px color: lightblue; z-index: 10">
+        Inspired By Harvard's <a href="https://online-learning.harvard.edu/course/cs50s-introduction-game-development" style = "color: white;">CS50 Game Dev Course</a>.</p>!-->
+		</div>
+		<audio id = "music" src = "marios_way.mp3" loop = "true"/>
+	</body>
+<html>

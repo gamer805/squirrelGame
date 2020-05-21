@@ -1,0 +1,684 @@
+<!doctype html>
+<html>
+	<head>
+		<title> Test </title>
+		<style type="text/css">
+			@font-face {
+	        font-family: "dogChronicles";
+	        src: url("dogChroniclesFon.ttf");
+	        }
+
+	        html {
+	        font-family: 'dogChronicles', Arial, sans-serif;
+	        -webkit-user-select: none;
+	        -webkit-touch-callout: none;
+	        overflow: hidden;
+	        color: white;
+	        }
+		</style>
+	</head>
+	<script src="simply.js"></script>
+	<script>
+		function start() {
+			sjs.open('target', window.innerWidth, window.innerHeight)
+			var backgroundLayer1 = new sjs.Image('blank.png')
+			backgroundLayer1.node.style.backgroundImage = "url('lvl1Mts.png')"
+			backgroundLayer1.node.style.backgroundColor = "skyblue"
+			backgroundLayer1.noBounds = true
+			backgroundLayer1.moveTo(0, window.innerHeight - 720)
+			backgroundLayer1.setSize(1280*12,720);
+			var backgroundLayer2 = new sjs.Image('blank.png')
+			backgroundLayer2.node.style.backgroundImage = "url('lvl1Trees2.png')"
+			backgroundLayer2.noBounds = true
+			backgroundLayer2.moveTo(0, window.innerHeight - 720)
+			backgroundLayer2.setSize(1280*12,720);
+			var backgroundLayer3 = new sjs.Image('blank.png')
+			backgroundLayer3.node.style.backgroundImage = "url('lvl1Trees1.png')"
+			backgroundLayer3.noBounds = true
+			backgroundLayer3.moveTo(0, window.innerHeight - 720)
+			backgroundLayer3.setSize(1280*12,720);
+			var acornCount = 0
+			var seed =134786;
+			var x = Math.sin(seed++) * 10000;
+			var random = x - Math.floor(x);
+			console.log(random);
+			document.addEventListener("touchstart", function(e) {
+				e.keyCode = 32
+			});
+			document.addEventListener("touchend", function(e) {
+				e.keyCode = 32
+			});
+			var groundArray = []
+			var ground = new sjs.Image('blank.png')
+			ground.node.style.backgroundImage = "url('ground.png')"
+			ground.noBounds = true
+			ground.moveTo(0, window.innerHeight - 39)
+			ground.setSize(1280*12,39);
+			ground.node.style.zIndex = 1
+			ground.type = "ground"
+			groundArray.push(ground)
+			var score = 0;
+			
+			var highScore = localStorage.getItem('planeHighScore') == undefined ? 0 : parseInt(localStorage.getItem('planeHighScore'), 10)
+			var player = new sjs.Image('squirrelIdleRight.gif')
+			player.setSize(78, 69)
+			player.friction = 0.2
+			var facingRight = true
+			player.moveTo(window.innerWidth/2, window.innerHeight - 39)
+			player.type = "player"
+			var canJump = true
+			player.setGravity(3)
+			var assetArray = []
+			var startFlag = new sjs.Image('blank.png')
+			startFlag.setSize(1, 720)
+			startFlag.moveTo(0, window.innerHeight - 39)
+			startFlag.type = 'startFlag'
+
+			var health = 3
+			var heartArray = []
+			var heart1 = new sjs.Image('heart-1.png')
+			heart1.setSize(30, 27)
+			heart1.moveTo(6, 6)
+			var heart2 = new sjs.Image('heart-1.png')
+			heart2.setSize(30, 27)
+			heart2.moveTo(39, 6)
+			var heart3 = new sjs.Image('heart-1.png')
+			heart3.setSize(30, 27)
+			heart3.moveTo(72, 6)
+			heartArray.push(heart1)
+			heartArray.push(heart2)
+			heartArray.push(heart3)
+
+			assetArray.push(startFlag)
+			var pit = new sjs.Image('pit.png')
+			pit.noBounds = true
+			pit.setSize(7*39, 42)
+			pit.moveTo(2000, window.innerHeight - 42)
+			pit.type = 'pit'
+			pit.node.style.zIndex = 2
+			assetArray.push(pit)
+			var slope = new sjs.Image('slopeRight.png')
+			slope.noBounds= true
+			slope.setSize(117, 156)
+			slope.moveTo(2000 - 117, window.innerHeight - 156)
+			slope.type = 'slopeRight'
+			slope.node.style.zIndex = 2
+			assetArray.push(slope)
+			var slope = new sjs.Image('slopeLeft.png')
+			slope.noBounds= true
+			slope.setSize(117, 156)
+			slope.moveTo(2000+7*39, window.innerHeight - 156)
+			slope.type = 'slopeLeft'
+			slope.node.style.zIndex = 2
+			assetArray.push(slope)
+			var snakeArray = [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1,
+							0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1, 
+							0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0, 
+							0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+							0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 
+							0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0
+			]
+			for (var i = 0; i < snakeArray.length; i++) {
+				if(snakeArray[i] == 1){
+					var snake = new sjs.Image('snakeSlitherRight.gif')
+					snake.setSize(96, 78)
+					snake.friction = 0
+					snake.setGravity()
+					snake.noBounds = true;
+					snake.moveTo(i*150, window.innerHeight - 39 - 78)
+					snake.pushRight()
+					snake.type = "snakeRight"
+
+					assetArray.push(snake)
+				} else if(snakeArray[i] == 2){
+					var snake = new sjs.Image('snakeSlitherLeft.gif')
+					snake.setSize(96, 78)
+					snake.friction = 0
+					snake.setGravity()
+					snake.noBounds = true;
+					snake.moveTo(i*150, window.innerHeight - 39 - 78)
+					snake.pushLeft()
+					snake.type = "snakeLeft"
+
+					assetArray.push(snake)
+				}
+			}
+			var acornsFoundArray = []
+			var platformArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+							0, 0, 0, 0, 0, 0, [1, 200], 0, [1, 300], 0, [1, 400, 1], 0, 0, 0, 0, 0, 0, 
+							0, 0, 0, 0, 0, 0, 0, 0, [1, 200, 1], 0, 0, 0, 0, 0, 0, 0, 0, 
+							0, 0, [1, 200, 1], 0, 0, 0, 0, 0, [1, 200, 1], 0, 0, 0, 0, [1, 200, 1], 0, 0, 0, 
+							0, 0, 0, 0, 0, 0, [1, 200, 1], 0, 0, 0, [1, 200, 1], 0, 0, 0, 0, 0, 0, 
+							0, 0, 0, 0, 0, 0, 0, [1, 200, 1], 0, 0, 0, 0, 0, 0, 0, 0, 0
+			]
+			for (var i = 0; i < platformArray.length; i++) {
+				if(platformArray[i][0] == 1){
+					var platform = new sjs.Image('platform.png')
+					platform.setSize(174, 54)
+					platform.noBounds = true;
+					platform.moveTo(i*174, window.innerHeight - platformArray[i][1])
+					seed = seed + 765
+					x = Math.sin(seed++) * 10000;
+					random = x - Math.floor(x)
+					console.log(seed)
+					platform.type = "platform"
+					if(platformArray[i][2] == 1){
+						var acorn = new sjs.Image('acorn.png')
+						acorn.friction = 0
+						acorn.type = 'acorn'
+						acorn.noBounds = true
+						acorn.setSize(51, 45)
+						acorn.moveTo(i*174 + 174/2 - 25, window.innerHeight - platformArray[i][1] - 40)
+						assetArray.push(acorn)
+					}
+
+					assetArray.push(platform)
+				}
+			}
+
+
+			var gnomeArray = [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+							0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 
+							0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 
+							0, 0, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 
+							0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 
+							1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0
+			]
+			for (var i = 0; i < gnomeArray.length; i++) {
+				if(gnomeArray[i] == 1){
+					var gnome = new sjs.Image('gnomeWalkRight.gif')
+					gnome.setSize(72, 132)
+					gnome.friction = 0
+					gnome.setGravity()
+					gnome.noBounds = true;
+					gnome.moveTo(i*150, window.innerHeight - 39 - 78)
+					gnome.pushRight()
+					gnome.type = "gnomeRight"
+
+					assetArray.push(gnome)
+				} else if(gnomeArray[i] == 2){
+					var gnome = new sjs.Image('gnomeWalkLeft.gif')
+					gnome.setSize(72, 132)
+					gnome.friction = 0
+					gnome.setGravity()
+					gnome.noBounds = true;
+					gnome.moveTo(i*150, window.innerHeight - 39 - 78)
+					gnome.pushLeft()
+					gnome.type = "gnomeLeft"
+
+					assetArray.push(gnome)
+				}
+			}
+
+			var spikerArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+							0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1, 0, 0, 
+							2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 
+							0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 
+							0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 
+							0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0
+			]
+			for (var i = 0; i < spikerArray.length; i++) {
+				if(spikerArray[i] == 1){
+					var spiker = new sjs.Image('spikerRiseRight.gif')
+					spiker.setSize(60, 63)
+					spiker.friction = 0
+					spiker.noBounds = true;
+					spiker.moveTo(i*150, window.innerHeight - 63 - 40)
+					spiker.pushRight(2)
+					spiker.type = "spikerRight"
+
+					assetArray.push(spiker)
+				} else if(spikerArray[i] == 2){
+					var spiker = new sjs.Image('spikerRiseLeft.gif')
+					spiker.setSize(60, 63)
+					spiker.friction = 0
+					spiker.noBounds = true;
+					spiker.moveTo(i*150, window.innerHeight - 63 - 40)
+					spiker.pushLeft(2)
+					spiker.type = "spikerLeft"
+
+					assetArray.push(spiker)
+				}
+			}
+			
+			setInterval(function(){
+				for (var i = 0; i < assetArray.length; i++) {
+					if (assetArray[i].type == 'snakeRight'){
+					assetArray[i].type = 'snakeLeft'
+					assetArray[i].stop()
+					assetArray[i].pushLeft()
+					assetArray[i].setImage('snakeSlitherLeft.gif')
+					} else if (assetArray[i].type == 'snakeLeft'){
+						assetArray[i].type = 'snakeRight'
+						assetArray[i].stop()
+						assetArray[i].pushRight()
+						assetArray[i].setImage('snakeSlitherRight.gif')
+					}
+				}
+				
+			}, 4000)
+
+			setInterval(function(){
+				for (var i = 0; i < assetArray.length; i++) {
+					if (assetArray[i].type == 'gnomeRight'){
+					assetArray[i].type = 'gnomeLeft'
+					assetArray[i].stop()
+					assetArray[i].pushLeft(1.5)
+					assetArray[i].setImage('gnomeWalkLeft.gif')
+					} else if (assetArray[i].type == 'gnomeLeft'){
+						assetArray[i].type = 'gnomeRight'
+						assetArray[i].stop()
+						assetArray[i].pushRight(1.5)
+						assetArray[i].setImage('gnomeWalkRight.gif')
+					}
+				}
+				
+			}, 8000)
+			setInterval(function(){
+				for (var i = 0; i < assetArray.length; i++) {
+					if (assetArray[i].type == 'spikerRight'){
+					assetArray[i].type = 'spikerLeft'
+					assetArray[i].stop()
+					assetArray[i].pushLeft(2)
+					assetArray[i].node.src = 'spikerRiseLeft.gif'
+					} else if (assetArray[i].type == 'spikerLeft'){
+						assetArray[i].type = 'spikerRight'
+						assetArray[i].stop()
+						assetArray[i].pushRight(2)
+						assetArray[i].node.src = 'spikerRiseRight.gif'
+					}
+				}
+				
+			}, Math.ceil(Math.random()*10000 + 10000))
+			var spikedUnder = false
+			setInterval(function(){
+				for (var i = 0; i < assetArray.length; i++) {
+					if (assetArray[i].type == 'spikerRight' && assetArray[i].getX() >= player.getX() - 48 && assetArray[i].getX() <= player.getX() + 48 && !(spikedUnder)){
+						assetArray[i].node.src = 'spikerRiseRight.gif'
+						spikedUnder = true
+						setTimeout(function(){
+							spikedUnder = false
+						}, 500)
+					} else if (assetArray[i].type == 'spikerLeft' && assetArray[i].getX() >= player.getX() - 48 && assetArray[i].getX() <= player.getX() + 48 && !(spikedUnder)){
+						assetArray[i].node.src = 'spikerRiseLeft.gif'
+						spikedUnder = true
+						setTimeout(function(){
+							spikedUnder = false
+						}, 500)
+					}
+				}
+				
+			}, 1)
+
+
+			/*var loseTxt = new sjs.Text("", 60, "white", "dogChronicles")
+			var scoreTxt = new sjs.Text("", 60, "white", "dogChronicles")
+			var highscoreTxt = new sjs.Text("High Score: " + highScore, 52, 'white', 'dogChronicles')
+			highscoreTxt.node.style.zIndex = 3
+			highscoreTxt.moveTo(window.innerWidth/2 - 232, window.innerHeight/2 + 100)
+			var gameScoreTxt = new sjs.Text("", 52, "white", "dogChronicles")
+			var titleTxt = new sjs.Text("Don't Crash!", 60, "white", "dogChronicles")
+			titleTxt.node.style.zIndex = 3
+			titleTxt.moveTo(window.innerWidth/2 - 232, window.innerHeight/2 - 200)*/
+			sjs.keyDown(SPACE_KEY, function(){
+				if(canJump){
+			    	player.pushUp(55)
+			    	canJump = false
+			    	if(facingRight){
+			    		player.setImage('squirrelJumpRight.png')
+			    	}else{
+			    		player.setImage('squirrelJumpLeft.png')
+			    	}
+			    	//sounds['jump']:play()
+			    }
+		    })
+		    var scrollable = true
+
+		    sjs.keyDown(D_KEY, function(){
+		    	facingRight = true
+		    	if(scrollable)scrollRight = true
+		    	//document.getElementById('music').play()
+		    	if(canJump)player.setImage('squirrelWalkRight.gif')
+		    	if(!(levelY > 0)) {
+		    		player.pushRight()
+		    	}
+		    })
+		    sjs.keyDown(A_KEY, function(){
+		    	facingRight = false
+		    	if(levelY > 0) {
+		    		if(scrollable)scrollLeft = true
+
+		    	} else {
+		    		player.pushLeft()
+		    	}
+		    	if(canJump)player.setImage('squirrelWalkLeft.gif')
+		    })
+		    setInterval(function(){
+		    	if(!scrollable)scrollRight = false
+		    	if(!scrollable)scrollLeft = false
+		    },1)
+		    window.addEventListener('keyup', function(e){
+		    	if (e.keyCode == D_KEY) {
+		    		scrollRight = false
+		    		player.setImage('squirrelIdleRight.gif')
+		    	} else if (e.keyCode == A_KEY) {
+		    		scrollLeft = false
+		    		player.setImage('squirrelIdleLeft.gif')
+		    	} else if (e.keyCode == X_KEY) {
+		    		if(acornCount > 0){
+						acornCount--
+						acornsFoundArray[acornsFoundArray.length - 1].destroy()
+			    		acornsFoundArray.pop()
+			    		var acorn = new sjs.Image('acorn.png')
+						acorn.friction = 0
+						acorn.type = 'shotAcorn'
+						acorn.noBounds = true
+						acorn.setSize(51, 45)
+						assetArray.push(acorn)
+				    	if(facingRight){
+							acorn.moveTo(player.getX() - acorn.getWidth() - 9, player.getY() + 18)
+				    		acorn.pushRight(15)
+				    	}else{
+							acorn.moveTo(player.getX() + player.getWidth() + 9, player.getY() + 18)
+				    		acorn.pushLeft(15)
+				    	}
+				    	setTimeout(function(){
+				    		acorn.destroy()
+				    	}, 5000)
+				    		
+				    }
+		    	}
+		    	
+		    })
+			
+			var obstacleArray = []
+			var loopNumber = 0
+			var scrollRight = false;
+			var scrollLeft = false;
+			var leftScreenHit = true;
+			var treeDistances = Math.floor(Math.random()*40) + 20
+			var levelY = 0
+			
+			setInterval(function(){
+				if (levelY <= 0 || startFlag.getX() >= 0) scrollLeft = false
+				if (scrollRight && player.getX() >= window.innerWidth/2) {
+					levelY++
+					backgroundLayer1.moveTo((backgroundLayer1.getX() - 1), window.innerHeight - 720)
+					backgroundLayer2.moveTo((backgroundLayer2.getX() - 1.5), window.innerHeight - 720)
+					backgroundLayer3.moveTo((backgroundLayer3.getX() - 2), window.innerHeight - 720)
+					for (var i = 0; i < groundArray.length; i++) {
+						groundArray[i].moveTo((groundArray[i].getX() - 5), window.innerHeight - 40)
+					}
+					for (var i = 0; i < assetArray.length; i++) {
+						assetArray[i].noBounds = true
+						assetArray[i].moveTo(assetArray[i].getX() - 5, assetArray[i].getY())
+
+					}
+					
+				} else if (scrollLeft){
+					levelY--
+					backgroundLayer1.moveTo((backgroundLayer1.getX() + 1), window.innerHeight - 720)
+					backgroundLayer2.moveTo((backgroundLayer2.getX() + 1.5), window.innerHeight - 720)
+					backgroundLayer3.moveTo((backgroundLayer3.getX() + 2), window.innerHeight - 720)
+					for (var i = 0; i < groundArray.length; i++) {
+						groundArray[i].moveTo((groundArray[i].getX() + 5), window.innerHeight - 40)
+					}
+					for (var i = 0; i < assetArray.length; i++) {
+						assetArray[i].noBounds = true
+						assetArray[i].moveTo(assetArray[i].getX() + 5, assetArray[i].getY())
+					}
+				}
+				
+
+			},17)
+
+			/*setInterval(function () {
+				if (scrolling) {
+					score++
+					if (score > highScore) highScore = score
+					localStorage.setItem('planeHighScore', highScore)
+					gameScoreTxt.setText(score)
+				} else {
+					gameScoreTxt.node.style.zIndex = -1;
+				}
+			},1000)*/
+			sjs.onHit("player", "ground", function(x,y){
+				if(x.getY() + 27 < y.getY() && x.getX() + x.getWidth() > y.getX()){
+					canJump = true
+					sjs.stoppedBy(x,y)
+					player.moveTo(player.getX(), y.getY() - x.getHeight())
+					if(facingRight){
+			    		player.setImage('squirrelIdleRight.gif')
+			    	}else{
+			    		player.setImage('squirrelIdleLeft.gif')
+			    	}
+			    	if (health > 0 && !playerHitCooldown && spikedUnder == true && canJump == true){
+						playerHitCooldown = true
+						player.pushUp(45)
+						health--
+						heartArray[heartArray.length - 1].setImage('heart-0.png')
+						heartArray.pop()
+						setTimeout(function(){
+							playerHitCooldown = false
+						}, 1000)
+					}
+				}
+			})
+
+			sjs.onHit("player", "platform", function(x,y){
+				if(x.getY() + 27 < y.getY() && x.getX() + x.getWidth() > y.getX()){
+					canJump = true
+					sjs.stoppedBy(x,y)
+					player.moveTo(player.getX(), y.getY() - x.getHeight())
+					if(facingRight){
+			    		player.setImage('squirrelIdleRight.gif')
+			    	}else{
+			    		player.setImage('squirrelIdleLeft.gif')
+			    	}
+				}
+			})
+
+
+
+			var playerHitCooldown = false
+			sjs.onHit("player", "snakeRight", function(x,y){
+				if(x.getY()+x.getHeight()<y.getY()+18){
+					y.type = "snakeDie"
+					y.stop()
+					y.setSize(150, 78)
+					y.node.src = 'snakeDieRight.gif'
+					setTimeout(function(){
+						assetArray.splice(assetArray.indexOf(y), 1)
+						y.node.style.zIndex = -1
+					}, 7000)
+				} else if (health > 0 && !playerHitCooldown){
+					playerHitCooldown = true
+					if(startFlag.getX() < 0){
+						scrollLeft = true
+						setTimeout(function(){
+							scrollLeft = false
+						}, 500)
+					} else {
+						player.pushRight(15)
+					}
+					player.pushUp(5)
+					health--
+					heartArray[heartArray.length - 1].setImage('heart-0.png')
+					heartArray.pop()
+					setTimeout(function(){
+						playerHitCooldown = false
+					}, 1000)
+				}
+			})
+			sjs.onHit("player", "snakeLeft", function(x,y){
+				if(x.getY()+x.getHeight()<=y.getY()+18){
+					y.type = "snakeDie"
+					y.stop()
+					y.setSize(150, 78)
+					y.node.src = 'snakeDieLeft.gif'
+					setTimeout(function(){
+						assetArray.splice(assetArray.indexOf(y), 1)
+						y.node.style.zIndex = -1
+					}, 1700)
+					
+				}  else if (health > 0 && !playerHitCooldown){
+					playerHitCooldown = true
+					if(startFlag.getX() < 0){
+						scrollLeft = true
+						setTimeout(function(){
+							scrollLeft = false
+						}, 500)
+					} else {
+						player.pushLeft(15)
+					}
+					
+					player.pushUp(5)
+					health--
+					heartArray[heartArray.length - 1].setImage('heart-0.png')
+					heartArray.pop()
+					setTimeout(function(){
+						playerHitCooldown = false
+					}, 1000)
+				}
+			})
+
+			sjs.onHit("shotAcorn", "snakeLeft", function(x,y){
+				y.type = "snakeDie"
+				y.stop()
+				y.setSize(150, 78)
+				y.node.src = 'snakeDieLeft.gif'
+				setTimeout(function(){
+					assetArray.splice(assetArray.indexOf(y), 1)
+					y.node.style.zIndex = -1
+				}, 1700)
+			})
+
+			sjs.onHit("shotAcorn", "snakeRight", function(x,y){
+				y.type = "snakeDie"
+				y.stop()
+				y.setSize(150, 78)
+				y.node.src = 'snakeDieRight.gif'
+				setTimeout(function(){
+					assetArray.splice(assetArray.indexOf(y), 1)
+					y.node.style.zIndex = -1
+				}, 1700)
+			})
+
+			sjs.onHit(["snakeRight", "snakeLeft", "snakeDie", "gnomeRight", "gnomeLeft"], "ground", function(x,y){
+				sjs.stoppedBy(x,y)
+				
+			})
+
+			sjs.onHit("player", "slopeRight", function(x,y){
+				if (!(x.getX() + x.getWidth() >= y.getX() + y.getWidth())) {
+					canJump = true
+					x.moveTo(x.getX(), window.innerHeight - x.getX() + y.getX() - y.getHeight())
+				} else {
+					sjs.stoppedBy(x,y)
+				}
+				if(facingRight){
+		    		player.setImage('squirrelIdleRight.gif')
+		    	}else{
+		    		player.setImage('squirrelIdleLeft.gif')
+		    	}
+			}, 0.1)
+			sjs.onHit("player", "slopeLeft", function(x,y){
+				if (!(x.getX() <= y.getX())) {
+					canJump = true
+					x.moveTo(x.getX(), window.innerHeight - y.getHeight() - x.getHeight() + (x.getX() -  y.getX()) + 27)
+				} else {
+					sjs.stoppedBy(x,y)
+				}
+				if(facingRight){
+		    		player.setImage('squirrelIdleRight.gif')
+		    	}else{
+		    		player.setImage('squirrelIdleLeft.gif')
+		    	}
+			}, 0.1)
+
+			sjs.onHit("player", 'pit', function(x,y){
+				if(x.getX() + x.getWidth() > y.getX() + x.getWidth() - 3 && x.getX() + x.getWidth() < y.getX() + y.getWidth()){
+					x.type = 'null'
+					x.noBounds = true
+					x.setGravity()
+					scrollable = false
+					setTimeout(function(){
+						x.destroy()
+					}, 2000)
+				}
+			})
+			sjs.onHit(["snakeLeft", "snakeRight", "gnomeLeft", "gnomeRight", "spikerLeft", "spikerRight"], 'pit', function(x,y){
+				if(x.getX() + x.getWidth() > y.getX() + x.getWidth() - 3 && x.getX() + x.getWidth() < y.getX() + y.getWidth()+18){
+					x.type = 'null'
+					x.noBounds = true
+					setTimeout(function(){
+						x.destroy()
+					}, 2000)
+				}
+			})
+			sjs.onHit("spikerLeft", ['slopeLeft', 'slopeRight'], function(x,y){
+				x.node.src = 'spikerRiseRight.gif'
+				x.stop()
+				x.pushRight(2)
+				x.type = 'spikerRight'
+			})
+			sjs.onHit("spikerRight", ['slopeLeft', 'slopeRight'], function(x,y){
+				x.node.src = 'spikerRiseLeft.gif'
+				x.stop()
+				x.pushLeft(2)
+				x.type = 'spikerLeft'
+			})
+			sjs.onHit("gnomeLeft", ['slopeLeft', 'slopeRight'], function(x,y){
+				x.node.src = 'gnomeWalkRight.gif'
+				x.stop()
+				x.pushRight(2)
+				x.type = 'gnomeRight'
+			})
+			sjs.onHit("gnomeRight", ['slopeLeft', 'slopeRight'], function(x,y){
+				x.node.src = 'gnomeWalkLeft.gif'
+				x.stop()
+				x.pushLeft(2)
+				x.type = 'gnomeLeft'
+			})
+			sjs.onHit("snakeLeft", ['slopeLeft', 'slopeRight'], function(x,y){
+				x.node.src = 'snakeSlitherRight.gif'
+				x.stop()
+				x.pushRight(2)
+				x.type = 'snakeRight'
+			})
+			sjs.onHit("snakeRight", ['slopeLeft', 'slopeRight'], function(x,y){
+				x.node.src = 'snakeSlitherLeft.gif'
+				x.stop()
+				x.pushLeft(2)
+				x.type = 'snakeLeft'
+			})
+
+			sjs.onHit("player", 'acorn', function(x,y){
+				//y.follow(x)
+				if(acornCount < 4){
+					y.type = 'caughtAcorn'
+					acornCount++;
+					acornsFoundArray.push(y)
+					y.moveTo(x.getX() - y.getWidth() - 9 - 57*(acornsFoundArray.indexOf(y)), x.getY() + 18)
+					setInterval(function(){
+						if(facingRight && y.type == 'caughtAcorn'){
+							y.moveTo(x.getX() - y.getWidth() - 9 - 57*(acornsFoundArray.indexOf(y)), x.getY() + 18)
+						} else {
+							y.moveTo(x.getX() + x.getWidth() + 9 + 57*(acornsFoundArray.indexOf(y)), x.getY() + 18)
+						}
+					})
+					assetArray.splice(assetArray.indexOf(y), 1)
+				}
+				
+				
+			})
+		}
+	</script>
+	<body onload="start()">
+		<div id="target" style="top: -5px; left: -7px; background: white;  overflow: hidden;">
+			<!--<p id="Simply Coding Reference" style="position: absolute; top: 12px; right: 12px color: lightblue; z-index: 10">
+        Inspired By Harvard's <a href="https://online-learning.harvard.edu/course/cs50s-introduction-game-development" style = "color: white;">CS50 Game Dev Course</a>.</p>!-->
+		</div>
+		<audio id = "music" src = "marios_way.mp3" loop = "true"/>
+	</body>
+<html>
